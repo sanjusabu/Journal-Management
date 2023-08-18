@@ -14,7 +14,7 @@ const createUserTable = async () => {
 
     try {
         const [results, fields] = await db.execute(createUserTableQuery);
-        // console.log("User Table Created:", results);
+        // console.log("User Table Created");
     } catch (error) {
         console.error("User Table Creation Error", error);
     }

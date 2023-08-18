@@ -12,10 +12,8 @@ const signup = async (req, res) => {
 
     try {
         const [results, fields] = await db.execute(insertUserQuery, [type, username, email , hashedPassword ]);
-        console.log("User registered:", results);
         res.status(200).json({ message: "User registered successfully" });
     } catch (error) {
-        console.error("User registration error:", error);
         res.status(500).json({ message: "User registration failed" });
     }
 };
@@ -51,5 +49,11 @@ const login = async (req, res) => {
     res.json({token});
 }
 
+const getusers = async (req, res) => {
+    let getusers = await db.execute("SELECT * FROM User");
+    // console.log(getusers[0]);
+    res.json(getusers[0]);
+}
 exports.signup = signup;
 exports.login = login;
+exports.getusers = getusers;

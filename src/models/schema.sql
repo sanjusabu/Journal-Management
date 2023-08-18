@@ -16,11 +16,11 @@ create Table if not exists `File` (
 
 create Table if not exists `Journal` (
     `journal_id` integer primary key autoincrement,
-    `name` varchar(255) not null,
+    `name` varchar(255) ,
     `teacher_id` integer not null,
     `description` text not null,
     `created_at` datetime ,
-    `file_id` integer ,
+    `file` text ,
 );
 
 create Table if not exists `JournalStudentRelation` (

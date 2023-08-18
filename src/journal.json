@@ -1,0 +1,52 @@
+[
+    {
+        "name": "Sanju",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Alex",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Emma",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "John",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Sophia",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Liam",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Olivia",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Noah",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Ava",
+        "teacher_id": 1,
+        "description": "Great"
+    },
+    {
+        "name": "Ethan",
+        "teacher_id": 1,
+        "description": "Great"
+    }
+]
