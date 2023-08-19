@@ -2,25 +2,28 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const userRoutes = require("./routes/user");
-const journalRoutes = require("./routes/journal");
-const feedRoutes = require("./routes/feed");
 const {createUserTable} = require('./models/User');
 const {createJournalTable} = require('./models/Journal');
 const {createRelation } = require('./models/JournalStudentRelation');
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const path = require('path');
+const swaggerDocument = YAML.load(path.join(__dirname, '..', 'swagger.yaml'));
 
+
+const routes = require("./routes")
 app.use(express.static(__dirname + "/public"));
 app.use(cors());
+
+app.use(bodyParser.json());
+app.use("/api", routes);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 createUserTable();
 createJournalTable();
 createRelation();
 
-app.use(bodyParser.json());
-
-app.use("/users", userRoutes);
-app.use("/journals", journalRoutes);
-app.use("/feed", feedRoutes);
 
 // db();
 

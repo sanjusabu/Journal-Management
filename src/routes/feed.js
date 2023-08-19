@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const feedController = require('../controllers/feedController.js');
 
-const Authmiddleware = require("../middleware/check-auth.js");
+const { FeedController } = require("../controllers")
+
+const { Authmiddleware } = require("../middleware")
 
 router.use(Authmiddleware);
 
-router.get("/getjournals", feedController.getJournals);
-router.post("/teacherfeed",feedController.teacherJournals);
-router.post("/studentfeed", feedController.studentFeed);
+router.get("/getjournals", FeedController.getJournals);
+router.post("/teacherfeed",FeedController.teacherJournals);
+router.post("/studentfeed", FeedController.studentFeed);
 
 module.exports = router;

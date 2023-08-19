@@ -1,0 +1,272 @@
+swagger: '2.0'
+info:
+  title: Journal System API
+  description: API for managing journals for students and teachers.
+  version: 1.0
+
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+basePath: /api
+
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+        enum: [Student, Teacher]
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+
+  Journal:
+    type: object
+    properties:
+      journal_id:
+        type: string
+      name:
+        type: string
+      teacher_id:
+        type: integer
+      description:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      file:
+        type: string
+      published_at:
+        type: string
+        format: date-time
+
+  JournalStudentRelation:
+    type: object
+    properties:
+      journal_id:
+        type: string
+      student_id:
+        type: integer
+
+paths:
+  /users/signup:
+    post:
+      tags:
+        - User
+      summary: User Signup
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+              type:
+                type: string
+                enum: [Student, Teacher]
+            required:
+              - username
+              - email
+              - password
+              - type
+      responses:
+        '200':
+          description: User signed up successfully
+        '500':
+          description: User registration failed
+
+  /users/login:
+    post:
+      tags:
+        - User
+      summary: User Login
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+            required:
+              - email
+              - password
+      responses:
+        '200':
+          description: User logged in successfully
+        '401':
+          description: Invalid credentials, could not log you in.
+
+  /journals/createjournal:
+    post:
+      tags:
+        - Journal
+      summary: Create a Journal
+      consumes:
+        - multipart/form-data
+      security:
+        - Bearer: []
+      parameters:
+        - in: formData
+          name: file
+          type: file
+        - in: formData
+          name: name
+          type: string
+        - in: formData
+          name: teacher_id
+          type: integer
+        - in: formData
+          name: description
+          type: string
+      responses:
+        '200':
+          description: Journal created successfully
+      
+
+  /journals/updateJournal:
+    patch:
+      tags:
+        - Journal
+      summary: Update a Journal
+      consumes:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: journal
+          schema:
+            type: object
+            properties:
+              journal_id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              file:
+                type: string
+            required:
+              - journal_id
+      responses:
+        '200':
+          description: Journal updated successfully
+
+  /journals/deletejournal:
+    delete:
+      tags:
+        - Journal
+      summary: Delete a Journal
+      consumes:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: journal
+          schema:
+            type: object
+            properties:
+              journal_id:
+                type: string
+            required:
+              - journal_id
+      responses:
+        '200':
+          description: Journal deleted successfully
+
+  /journals/publishJournal:
+    post:
+      tags:
+        - Journal
+      summary: Publish a Journal
+      consumes:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: journal
+          schema:
+            type: object
+            properties:
+              journal_id:
+                type: string
+            required:
+              - journal_id
+      responses:
+        '200':
+          description: Journal published successfully
+
+
+  /feed/teacherfeed:
+    post:
+      tags:
+        - Feed
+      summary: Get Journals for Teacher
+      consumes:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: teacher
+          schema:
+            type: object
+            properties:
+              teacher_id:
+                type: integer
+            required:
+              - teacher_id
+      responses:
+        '200':
+          description: Journals for teacher retrieved successfully
+
+  /feed/studentfeed:
+    post:
+      tags:
+        - Feed
+      summary: Get Journals for Student
+      consumes:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: student
+          schema:
+            type: object
+            properties:
+              student_id:
+                type: integer
+            required:
+              - student_id
+      responses:
+        '200':
+          description: Journals for student retrieved successfully

@@ -8,7 +8,7 @@ const populateRelation = async (id, students) => {
     }
 
     for (const student of students) {
-        const insertQuery = `Insert into \`JournalStudentRelation\` (journal_id, student_id) values (?, ?)`;
+        const insertQuery = `Insert into JournalStudentRelation (journal_id, student_id) values (?, ?)`;
             try {
                 await db.execute(insertQuery, [id, student]);
             } catch (err) {
@@ -22,7 +22,6 @@ const populateRelation = async (id, students) => {
 }
 
 const studentexists = async (id)=>{
-
     try{
         const results = await db.execute("select * from user where type = ? and id = ?",["Student",id]);
         if(results[0].length == 0 ) return false;
@@ -32,12 +31,10 @@ const studentexists = async (id)=>{
         console.log(err);
         return false;
     }
-
     return true;
 }
 
 const TeacherExists = async (id)=>{
-
     try{
         const results = await db.execute("select * from user where type = ? and id = ?",["Teacher",id]);
         if(results[0].length == 0 ) return false;
@@ -47,7 +44,6 @@ const TeacherExists = async (id)=>{
         console.log(err);
         return false;
     }
-
     return true;
 }
 
