@@ -54,6 +54,8 @@ const getusers = async (req, res) => {
     // console.log(getusers[0]);
     res.json(getusers[0]);
 }
+
+
 exports.signup = signup;
 exports.login = login;
 exports.getusers = getusers;

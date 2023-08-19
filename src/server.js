@@ -7,6 +7,7 @@ const journalRoutes = require("./routes/journal");
 const {createUserTable} = require('./models/User');
 const {createFileTable} = require('./models/File');
 const {createJournalTable} = require('./models/Journal');
+const {createRelation } = require('./models/JournalStudentRelation');
 
 app.use(express.static(__dirname + "/public"));
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(cors());
 createUserTable();
 createFileTable();
 createJournalTable();
+createRelation();
 
 app.use(bodyParser.json());
 
