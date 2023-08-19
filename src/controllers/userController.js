@@ -1,9 +1,11 @@
 const bcrypt = require("bcrypt");
 const db = require("../config/database");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const signup = async (req, res) => {
     
-    const { username , password,email, type} = req.body;
+    const { username , password, email, type} = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const insertUserQuery = `
         INSERT INTO \`User\` (type,username,email,password)
@@ -41,7 +43,7 @@ const login = async (req, res) => {
 
     let token = jwt.sign(
         { password: existingUser.id, email: existingUser.email },
-        "supersecret_dont_share"
+        process.env.JWT_SECRET,
       );
 
     // console.log(existingUser.id + " " + "possible?");

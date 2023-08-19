@@ -1,9 +1,9 @@
 const db = require("../config/database");
 const cloudinary = require("cloudinary").v2;
-require('dotenv').config();
 const getDataUri = require("../utils/Datauri.js");
 const UUID = require("uuid");
 const RelationController = require("../controllers/RelationController")
+require('dotenv').config();
 
 const createJournal = async (req, res) => {
     // console.log(req.file);
@@ -12,6 +12,55 @@ const createJournal = async (req, res) => {
     let studentsArray = [];
     const id = UUID.v4();
 
+    const isTeacher = await RelationController.TeacherExists(teacher_id);
+    if(!isTeacher) return res.json({"error": "Teacher does not exist"});
+
+    const insertJournal = `
+        INSERT INTO \`Journal\` (journal_id,name,teacher_id,description,file)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+     // file upload
+    let result;
+    if( file != null){
+   
+        const fileUri = getDataUri(id,file);
+        try{
+            cloudinary.config({
+                cloud_name: process.env.CLOUD_NAME, 
+                api_key: process.env.API_KEY, 
+                api_secret: process.env.API_SECRET
+            });
+            result = await cloudinary.uploader.upload(fileUri.content);
+
+        }
+        catch(err){
+            console.log(err);
+            res.json({"error": "Cloudinary error"});
+            return;
+        }
+
+    }
+
+    try {
+        if(file == null){
+            await db.execute(insertJournal, [id,name,teacher_id,description,null]);
+            // console.log("helo");
+            // return;
+        }
+        else{
+        // console.log( insertJournal, [id,name,teacher_id,description,result.secure_url]);
+            await db.execute(insertJournal, [id,name,teacher_id,description,result.secure_url]);    
+        }
+        
+        
+    } catch (error) {
+        // console.log(error,"hfjdshfjsdjd");
+           return res.status(500).json({ "message": "Journal Creation Failed", "error": error });
+        
+    }
+    
+    // This is a check to populate the Journal Student Relation table.
     try {
         studentsArray = JSON.parse(students).map(Number);
     } catch (error) {
@@ -19,71 +68,13 @@ const createJournal = async (req, res) => {
     }
 
     // console.log(studentsArray[0]);
-
-    if(!RelationController.populateRelation(id,studentsArray)){
-        res.json({"error": "Error in inserting into Relation Table"})
+    let check = await RelationController.populateRelation(id,studentsArray);
+    if(!check){
+        res.json({"error": "Student doesn't exist"})
         return;
     }
-    else{
-        res.json({"message": "Insertion into Relation Table Successful"})
-    }
 
-//     const insertJournal = `
-//         INSERT INTO \`Journal\` (journal_id,name,teacher_id,description,file)
-//         VALUES (?, ?, ?, ?, ?)
-//     `;
-
-//     // teacher exists
-
-//     let teacherexists = await db.execute("SELECT * FROM User WHERE id = ? and type = ?", [teacher_id,"Teacher"]);
-    
-//     if (teacherexists[0].length==0) {
-//         res.status(500).json({"error": "Teacher does not exist"});
-//         return;
-//     }
-
-//     // console.log(teacherexists[0][0]);
-
-//      // file upload
-
-//     if( file != null){
-   
-//     const fileUri = getDataUri(id,file);
-//     let result;
-//     try{
-//     cloudinary.config({
-//         cloud_name: process.env.CLOUD_NAME, 
-//         api_key: process.env.API_KEY, 
-//         api_secret: process.env.API_SECRET
-//       });
-//     result = await cloudinary.uploader.upload(fileUri.content);
-
-//     }
-//     catch(err){
-//         console.log(err);
-//         res.json({"error": "Cloudinary error"});
-//         return;
-//     }
-
-// }
-//     // console.log("result",result);
-
-//     try {
-//         if(file == null){
-//             await db.execute(insertJournal, [id,name,teacher_id,description,null]);
-//             res.status(200).json({ message: "Journal Created Successfully" });
-//             return;
-//         }
-//         else{
-//         await db.execute(insertJournal, [id,name,teacher_id,description,result.secure_url]);
-//         res.status(200).json({ message: "Journal Created Successfully" });
-//         return;
-//         }
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({ message: "Journal Creation Failed", "error": error });
-//     }
-    
+    res.json({"message": "Journal Created Successfully"})
 }
 
 const updateJournal = async (req,res)=>{
@@ -91,13 +82,13 @@ const updateJournal = async (req,res)=>{
 }
 
 const deleteJournal = async (req,res)=>{
-    const {journal_id,teacher_id}  = req.body;
-    const deleteJournal = `delete from \`Journal\` where journal_id = ? and teacher_id= ?`
+    const {name,teacher_id}  = req.body;
+    const deleteJournal = `delete from \`Journal\` where name = ? and teacher_id= ?`
     
     try {
-        const result = await db.execute(deleteJournal, [journal_id,teacher_id]);
+        const result = await db.execute(deleteJournal, [name,teacher_id]);
         // console.log(result[1]);
-        res.status(200).json({ message: `Journal ${journal_id} Deleted Successfully` });
+        res.status(200).json({ message: `Journal ${name} Deleted Successfully` });
         return;
     } catch (error) {
         // console.log(error);
@@ -105,33 +96,37 @@ const deleteJournal = async (req,res)=>{
     }
 
 }
-const getallJournals = async (req,res)=>{
-    const selectJournal = `select * from \`Journal\` `
-    
-    try {
-        const results = await db.execute(selectJournal);
 
-        res.status(200).json({ Journals: results[0]});
-    } catch (error) {
-        res.status(500).json({ message: error });
+const publishJournal = async (req,res)=>{ //can be optimised
+     const {name,published_at,teacher_id} = req.body;
+     //get journal
+    //  console.log(name,published_at,teacher_id);
+    const getJournal = `select * from \`journal\` where name = ? and teacher_id = ?` ;
+    try{
+    const journ  = await db.execute(getJournal,[name,teacher_id]);
+    const journal = journ[0][0];
+    // console.log(journal);
+        if(journal == null){
+            return res.json({"message": "Journal does not exist"});
+            
+        }
+        if(journal.published_at == null){
+            const updateJournal = `update \`journal\` set published_at = ? where name = ? and teacher_id = ?` ;
+            const result = await db.execute(updateJournal,[published_at,name,teacher_id]);
+            return res.json({"message": "Journal published"});
+            
+        }
+        else{
+            return res.json({"message": "Journal already published"});
+        }
     }
-}
-const teacherJournals = async (req,res)=>{
-    const {teacher_id}  = req.body;
-    const selectJournal = `select * from \`Journal\` where teacher_id = ?`
-    
-    try {
-        const results = await db.execute(selectJournal,[teacher_id]);
-
-        res.status(200).json({ Journals: results[0]});
-    } catch (error) {
-        res.status(500).json({ message: error });
+    catch(err){
+        return res.json({"Error": err});
     }
 }
 
 exports.createJournal = createJournal;
 // exports.updateJournal = updateJournal;
 exports.deleteJournal = deleteJournal;
-exports.getJournals = getallJournals;
-exports.teacherJournals = teacherJournals;
+exports.publishJournal = publishJournal;
 

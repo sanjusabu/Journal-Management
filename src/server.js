@@ -4,8 +4,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const userRoutes = require("./routes/user");
 const journalRoutes = require("./routes/journal");
+const feedRoutes = require("./routes/feed");
 const {createUserTable} = require('./models/User');
-const {createFileTable} = require('./models/File');
 const {createJournalTable} = require('./models/Journal');
 const {createRelation } = require('./models/JournalStudentRelation');
 
@@ -13,7 +13,6 @@ app.use(express.static(__dirname + "/public"));
 app.use(cors());
 
 createUserTable();
-createFileTable();
 createJournalTable();
 createRelation();
 
@@ -21,6 +20,7 @@ app.use(bodyParser.json());
 
 app.use("/users", userRoutes);
 app.use("/journals", journalRoutes);
+app.use("/feed", feedRoutes);
 
 // db();
 

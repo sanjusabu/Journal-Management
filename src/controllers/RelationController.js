@@ -1,40 +1,56 @@
 const db = require("../config/database")
 const populateRelation = async (id, students) => {
-    console.log(id,students);
-    let flag =0;
-    students.map(async (student)=>{
-        const insertquery = `Insert into \`JournalStudentRelation\` (journal_id,student_id) values(?, ?)`;
-        //check if students exist
-        const check = await studentexists(student);
-        console.log(check);
-        // check for duplicates too
-        if(check){
-            try{
-            await db.execute(insertquery,[id,student]);
-            }
-            catch(err){
-                console.log(err);
-                flag =1;
-                return
-            }
-        }
+    // console.log(id, students);
 
-    })
-    if(flag==1) return false;
+    for(const student of students){
+        const check = await studentexists(student);
+        if(!check) return false;
+    }
+
+    for (const student of students) {
+        const insertQuery = `Insert into \`JournalStudentRelation\` (journal_id, student_id) values (?, ?)`;
+            try {
+                await db.execute(insertQuery, [id, student]);
+            } catch (err) {
+                // console.log(err);
+                return false;
+            }
+    }
 
     return true;
+    
 }
+
 const studentexists = async (id)=>{
+
     try{
-   const results = await db.execute("select * from user where type = ? and id = ?",["Student",id]);
-   console.log(results[0].length, id);
-   if(results[0].length == 0 ) return false;
-   return true;
+        const results = await db.execute("select * from user where type = ? and id = ?",["Student",id]);
+        if(results[0].length == 0 ) return false;
+
     }
     catch(err){
         console.log(err);
         return false;
     }
 
+    return true;
 }
+
+const TeacherExists = async (id)=>{
+
+    try{
+        const results = await db.execute("select * from user where type = ? and id = ?",["Teacher",id]);
+        if(results[0].length == 0 ) return false;
+
+    }
+    catch(err){
+        console.log(err);
+        return false;
+    }
+
+    return true;
+}
+
 exports.populateRelation = populateRelation;
+exports.studentexists = studentexists;
+exports.TeacherExists = TeacherExists;
