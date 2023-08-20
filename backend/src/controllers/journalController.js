@@ -124,7 +124,7 @@ const publishJournal = async (req,res)=>{ //can be optimised
         }
         if(journal.published_at == null){
 
-            await db.execute(`update journal set published_at = ? where journal_id = ?`
+            await db.execute(`update Journal set published_at = ? where journal_id = ?`
             ,[published_at,journal_id]);
 
             // const date1 = new Date(published_at);
