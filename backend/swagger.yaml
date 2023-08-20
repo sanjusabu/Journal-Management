@@ -3,6 +3,9 @@ info:
   title: Journal System API
   description: API for managing journals for students and teachers.
   version: 1.0
+servers:
+  - url: https://toddle-zjps.onrender.com
+    description: Deployed server
 
 schemes:
   - http
