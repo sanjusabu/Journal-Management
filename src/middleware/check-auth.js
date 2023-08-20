@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+const db  = require("../config/database");
 require("dotenv").config();
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -16,12 +17,14 @@ module.exports = (req, res, next) => {
     
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-        req.userData = { userId: decodedToken.userId };
-        // res.status(200).json({message: "Authenticated user"});
+        // console.log(decodedToken);
+        const result = await db.execute(`select * from User where id = ?`,[decodedToken.id]);
+        if(result[0].length == 0) return res.status(401).json({error: "Invalid Bearer token, Authentication failed"});
+        
+        req.id = { userId: decodedToken.id };
         next();
     } catch (error) {
-        return res.status(401).json({ error: "Inavlid Bearer token, Authentication failed" });
+        return res.status(401).json({ error: "Invalid Bearer token, Authentication failed" });
     }
 };
 

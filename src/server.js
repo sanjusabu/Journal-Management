@@ -20,10 +20,11 @@ app.use("/api", routes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-createUserTable();
-createJournalTable();
-createRelation();
-
+(async () => {
+    await createUserTable();
+    await createJournalTable();
+    await createRelation();
+})();
 
 // db();
 

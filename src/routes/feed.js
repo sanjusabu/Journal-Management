@@ -7,8 +7,7 @@ const { Authmiddleware } = require("../middleware")
 
 router.use(Authmiddleware);
 
-router.get("/getjournals", FeedController.getJournals);
-router.post("/teacherfeed",FeedController.teacherJournals);
-router.post("/studentfeed", FeedController.studentFeed);
+router.get("/teacherfeed",Authmiddleware,FeedController.teacherJournals);
+router.get("/studentfeed",Authmiddleware,FeedController.studentFeed);
 
 module.exports = router;

@@ -26,9 +26,7 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
-    // console.log(req.body)
-    // const errors = validationResult(req)
-  
+
     let existingUser;
     let userexists = await db.execute("SELECT * FROM User WHERE email = ?", [email]);
     existingUser =  userexists[0][0];
@@ -45,7 +43,7 @@ const login = async (req, res) => {
     }
 
     let token = jwt.sign(
-        { password: existingUser.id, email: existingUser.email },
+        { id: existingUser.id, email: existingUser.email },
         process.env.JWT_SECRET,
       );
 
@@ -54,13 +52,7 @@ const login = async (req, res) => {
     res.json({token, userid: existingUser.id});
 }
 
-// const getusers = async (req, res) => {
-//     let getusers = await db.execute("SELECT * FROM User");
-//     // console.log(getusers[0]);
-//     res.json(getusers[0]);
-// }
-
 
 exports.signup = signup;
 exports.login = login;
-// exports.getusers = getusers;
+

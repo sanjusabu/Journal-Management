@@ -3,16 +3,21 @@ const UUID = require("uuid");
 require('dotenv').config();
 const fileUpload = require("../utils/fileUpload");
 const RelationController = require("./relationController");
+const e = require("express");
+const notifier = require("../utils/Notification")
 
 const createJournal = async (req, res) => {
     // console.log(req.file);
-    const {name,teacher_id,description,students} = req.body;
+    const {name,description,student_ids} = req.body;
+    const teacher_id = req.id.userId;
     const file = req.file;
-    let studentsArray = [];
+    let studentsArray = student_ids.split(",");
+
+    console.log(teacher_id);
     const id = UUID.v4();
 
     const isTeacher = await RelationController.TeacherExists(teacher_id);
-    if(!isTeacher) return res.json({"error": "Teacher does not exist"});
+    if(!isTeacher) return res.status(500).json({"error": "Teacher does not exist"});
     let result;
     try {
         const insertJournal = `INSERT INTO Journal (journal_id,name,teacher_id,description,file)
@@ -30,30 +35,31 @@ const createJournal = async (req, res) => {
     
     // This is a check to populate the Journal Student Relation table.
     try {
-        studentsArray = JSON.parse(students).map(Number);
+        // studentsArray = JSON.parse(student_ids).map(Number);
+        // console.log(studentsArray,typeof(studentsArray));
         let check = await RelationController.populateRelation(id,studentsArray);
-        if(!check) return res.json({"error": "Students to be notified do not exist", "message": "Private Journal Created"})
+        if(!check) return res.status(500).json({"error": "Students to be notified do not exist", "message": "Private Journal Created"})
 
     } catch (error) {
-        console.error("Error parsing students array:", error);
+        return res.status(500).json(error);
     }
 
-    res.json({"message": "Journal Created Successfully"})
+    res.status(200).json({"message": "Journal Created Successfully"})
 }
 
 const updateJournal = async (req,res)=>{
-    const {journal_id,name,teacher_id,description} = req.body;
-    const file = req.file;
+    const {journal_id,name,description} = req.body;
+  
     let journal;
     //
     try{
-        const result  =  await db.execute("select * from journal where journal_id = ? and teacher_id =  ?",[journal_id,teacher_id]);
+        const result  =  await db.execute("select * from journal where journal_id = ?",[journal_id]);
         journal = result[0][0];
-        console.log(journal);
-        if(journal.length==0 || journal == null) return res.json({"message": "Journal does not exist"});
+        // console.log(journal);
+        if(journal.length==0 || journal == null) return res.status(500).json({"message": "Journal does not exist"});
     }
     catch(err){
-        return res.json({"Error": "Journal does not exist"});
+        return res.status(500).json({"Error": "Journal does not exist"});
     }
 
     if(name != null){
@@ -62,16 +68,25 @@ const updateJournal = async (req,res)=>{
             if(result[0].length != 0) return res.json({"message": "Journal name already exists,try a different name"});
 
             if(description != null){
-                await db.execute(`update journal set name = ?,description = ? where journal_id = ? and teacher_id = ?`
-                ,[name,description,journal_id,teacher_id]);
+                await db.execute(`update journal set name = ?,description = ? where journal_id = ?`
+                ,[name,description,journal_id]);
             }
             else{
-                await db.execute(`update journal set name = ? where journal_id = ? and teacher_id = ?`,
-                [name,journal_id,teacher_id]);
+                await db.execute(`update journal set name = ? where journal_id = ?`,
+                [name,journal_id]);
             }
         }
         catch(err){
-            return res.json({"Error": err});
+            return res.status(500).json({"Error": err});
+        }
+    }
+    else if(description != null){
+        try{
+            await db.execute(`update journal set description = ? where journal_id = ?`
+            ,[description,journal_id]);
+        }
+        catch(err){
+            return res.status(500).json({"Error": err});
         }
     }
 
@@ -80,11 +95,12 @@ const updateJournal = async (req,res)=>{
 }
 
 const deleteJournal = async (req,res)=>{
-    const {name,teacher_id}  = req.body;
+    const {journal_id}  = req.body;
     try {
-        await db.execute(`delete from Journal where name = ? and teacher_id= ?`, [name,teacher_id]);
-        // console.log(result[1]);
-        res.status(200).json({ message: `Journal ${name} Deleted Successfully` });
+        const result = await db.execute(`delete from Journal where journal_id = ?`, [journal_id]);
+
+        if(result[0].affectedRows == 0) return res.status(500).json({"message": "Journal does not exist"});
+        res.status(200).json({ message: `Journal ${journal_id} Deleted Successfully` });
         return;
     } catch (error) {
         // console.log(error);
@@ -94,31 +110,36 @@ const deleteJournal = async (req,res)=>{
 }
 
 const publishJournal = async (req,res)=>{ //can be optimised
-     const {name,published_at,teacher_id} = req.body;
+     const {journal_id,published_at} = req.body;
      //get journal
     //  console.log(name,published_at,teacher_id);
-    const getJournal = `select * from journal where name = ? and teacher_id = ?` ;
+    const getJournal = `select * from journal where journal_id = ?` ;
     try{
-    const journ  = await db.execute(getJournal,[name,teacher_id]);
+    const journ  = await db.execute(getJournal,[journal_id]);
     const journal = journ[0][0];
     // console.log(journal);
         if(journal == null){
-            return res.json({"message": "Journal does not exist"});
+            return res.status(500).json({"message": "Journal does not exist"});
             
         }
         if(journal.published_at == null){
 
-            await db.execute(`update journal set published_at = ? where name = ? and teacher_id = ?`
-            ,[published_at,name,teacher_id]);
-            return res.json({"message": "Journal published"});
+            await db.execute(`update journal set published_at = ? where journal_id = ?`
+            ,[published_at,journal_id]);
+
+            // const date1 = new Date(published_at);
+            // const date2  = new Date();
+            // if( date1 <= date2) notifier.notify(journal_id);
+
+            return res.status(500).json({"message": "Journal published"});
             
         }
         else{
-            return res.json({"message": "Journal already published"});
+            return res.status(500).json({"message": "Journal already published"});
         }
     }
     catch(err){
-        return res.json({"Error": err});
+        return res.status(500).json({"Error": err});
     }
 }
 

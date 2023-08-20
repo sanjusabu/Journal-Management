@@ -4,11 +4,10 @@ const upload = require("../middleware/multer.js");
 const { JournalController } = require('../controllers');
 const { Authmiddleware } = require("../middleware");
 
-router.use(Authmiddleware);
 
-router.post("/createjournal",upload,JournalController.createJournal);
-router.patch("/updateJournal",JournalController.updateJournal);
-router.delete("/deletejournal",JournalController.deleteJournal);
-router.post("/publishJournal" , JournalController.publishJournal);
+router.post("/createjournal",upload,Authmiddleware,JournalController.createJournal);
+router.patch("/updateJournal",Authmiddleware,JournalController.updateJournal);
+router.delete("/deletejournal",Authmiddleware,JournalController.deleteJournal);
+router.post("/publishJournal" ,Authmiddleware,JournalController.publishJournal);
 
 module.exports = router;

@@ -139,21 +139,25 @@ paths:
           name: name
           type: string
         - in: formData
-          name: teacher_id
-          type: integer
-        - in: formData
           name: description
           type: string
+        - in: formData
+          name: student_ids
+          type: array
+          items:
+            type: integer
       responses:
         '200':
           description: Journal created successfully
+        '500':
+          description: Internal Server Error
       
 
   /journals/updateJournal:
     patch:
       tags:
         - Journal
-      summary: Update a Journal
+      summary: Update a Journal's name and description 
       consumes:
         - application/json
       security:
@@ -170,13 +174,13 @@ paths:
                 type: string
               description:
                 type: string
-              file:
-                type: string
             required:
               - journal_id
       responses:
         '200':
           description: Journal updated successfully
+        '500':
+          description: Internal Server Error
 
   /journals/deletejournal:
     delete:
@@ -200,6 +204,8 @@ paths:
       responses:
         '200':
           description: Journal deleted successfully
+        '500':
+          description: Internal Server Error      
 
   /journals/publishJournal:
     post:
@@ -218,15 +224,21 @@ paths:
             properties:
               journal_id:
                 type: string
+              published_at:
+                type: string
+                format: date
             required:
               - journal_id
+              - published_at
       responses:
         '200':
           description: Journal published successfully
+        '500':
+          description: Internal Server Error          
 
 
   /feed/teacherfeed:
-    post:
+    get:
       tags:
         - Feed
       summary: Get Journals for Teacher
@@ -234,22 +246,14 @@ paths:
         - application/json
       security:
         - Bearer: []
-      parameters:
-        - in: body
-          name: teacher
-          schema:
-            type: object
-            properties:
-              teacher_id:
-                type: integer
-            required:
-              - teacher_id
       responses:
         '200':
           description: Journals for teacher retrieved successfully
+        '500':  
+          description: Internal Server Error
 
   /feed/studentfeed:
-    post:
+    get:
       tags:
         - Feed
       summary: Get Journals for Student
@@ -257,16 +261,8 @@ paths:
         - application/json
       security:
         - Bearer: []
-      parameters:
-        - in: body
-          name: student
-          schema:
-            type: object
-            properties:
-              student_id:
-                type: integer
-            required:
-              - student_id
       responses:
         '200':
           description: Journals for student retrieved successfully
+        '500':
+          description: Internal Server Error
