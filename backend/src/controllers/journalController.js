@@ -68,11 +68,11 @@ const updateJournal = async (req,res)=>{
             if(result[0].length != 0) return res.json({"message": "Journal name already exists,try a different name"});
 
             if(description != null){
-                await db.execute(`update journal set name = ?,description = ? where journal_id = ?`
+                await db.execute(`update Journal set name = ?,description = ? where journal_id = ?`
                 ,[name,description,journal_id]);
             }
             else{
-                await db.execute(`update journal set name = ? where journal_id = ?`,
+                await db.execute(`update Journal set name = ? where journal_id = ?`,
                 [name,journal_id]);
             }
         }
@@ -82,7 +82,7 @@ const updateJournal = async (req,res)=>{
     }
     else if(description != null){
         try{
-            await db.execute(`update journal set description = ? where journal_id = ?`
+            await db.execute(`update Journal set description = ? where journal_id = ?`
             ,[description,journal_id]);
         }
         catch(err){
