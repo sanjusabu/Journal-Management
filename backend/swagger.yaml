@@ -4,12 +4,10 @@ info:
   description: API for managing journals for students and teachers.
   version: 1.0
 servers:
+  - url: https://localhost:3000
+    description: Local development server
   - url: https://toddle-zjps.onrender.com
     description: Deployed server
-
-schemes:
-  - http
-  - https
 securityDefinitions:
   Bearer:
     type: apiKey

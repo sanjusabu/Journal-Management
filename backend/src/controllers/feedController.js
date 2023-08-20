@@ -24,7 +24,7 @@ const studentFeed = async (req, res) => {
     try {
         const feed = await db.execute(
             `SELECT j.journal_id,j.name,j.description,j.created_at,j.file,j.published_at FROM 
-            journal j INNER JOIN journalstudentrelation jsr ON j.journal_id = jsr.journal_id
+            Journal j INNER JOIN JournalStudentRelation jsr ON j.journal_id = jsr.journal_id
             WHERE jsr.student_id = ? and j.published_at is not null`,
             [student_id]
           );

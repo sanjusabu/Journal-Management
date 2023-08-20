@@ -19,7 +19,7 @@ const populateRelation = async (id, students) => {
 
 const studentexists = async (id)=>{
     try{
-        const results = await db.execute("select * from user where type = ? and id = ?",["Student",id]);
+        const results = await db.execute("select * from User where type = ? and id = ?",["Student",id]);
         if(results[0].length == 0 ) return false;
     }
     catch(err){
@@ -31,7 +31,7 @@ const studentexists = async (id)=>{
 
 const TeacherExists = async (id)=>{
     try{
-        const results = await db.execute("select * from user where type = ? and id = ?",["Teacher",id]);
+        const results = await db.execute("select * from User where type = ? and id = ?",["Teacher",id]);
         if(results[0].length == 0 ) return false;
     }
     catch(err){

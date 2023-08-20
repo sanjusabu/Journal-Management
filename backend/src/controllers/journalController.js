@@ -53,7 +53,7 @@ const updateJournal = async (req,res)=>{
     let journal;
     //
     try{
-        const result  =  await db.execute("select * from journal where journal_id = ?",[journal_id]);
+        const result  =  await db.execute("select * from Journal where journal_id = ?",[journal_id]);
         journal = result[0][0];
         // console.log(journal);
         if(journal.length==0 || journal == null) return res.status(500).json({"message": "Journal does not exist"});
@@ -64,7 +64,7 @@ const updateJournal = async (req,res)=>{
 
     if(name != null){
         try{
-            const result  =  await db.execute("select * from journal where name =  ?",[name]);
+            const result  =  await db.execute("select * from Journal where name =  ?",[name]);
             if(result[0].length != 0) return res.json({"message": "Journal name already exists,try a different name"});
 
             if(description != null){
@@ -113,7 +113,7 @@ const publishJournal = async (req,res)=>{ //can be optimised
      const {journal_id,published_at} = req.body;
      //get journal
     //  console.log(name,published_at,teacher_id);
-    const getJournal = `select * from journal where journal_id = ?` ;
+    const getJournal = `select * from Journal where journal_id = ?` ;
     try{
     const journ  = await db.execute(getJournal,[journal_id]);
     const journal = journ[0][0];
