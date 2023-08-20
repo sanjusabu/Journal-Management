@@ -131,7 +131,7 @@ const publishJournal = async (req,res)=>{ //can be optimised
             // const date2  = new Date();
             // if( date1 <= date2) notifier.notify(journal_id);
 
-            return res.status(500).json({"message": "Journal published"});
+            return res.status(200).json({"message": "Journal published"});
             
         }
         else{
