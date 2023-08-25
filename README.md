@@ -23,21 +23,6 @@ Deployed Link - https://toddle-zjps.onrender.com/api-docs
         dbuser = <database user name>
         dbpassword = <database user's password>
         dbport = <database port number>
-    
-    ex:
-    
-        CLOUD_NAME = dmroirvgj
-        API_KEY = 535914783966287
-        API_SECRET = onTmcpS-ebStwyFUQH381NzcJck
-        JWT_SECRET = supersecret_dont_share
-        SendEmail = sanjusabu066@gmail.com
-        Sendpassword = mbjbrcvjqvmtltap
-        host = sql6.freesqldatabase.com
-        database = sql6641031
-        dbuser = sql6641031
-        dbpassword = BsnVI77t4z
-        dbport = 3306
-    
 
 
 - Add the necessary env variables in the `.env` file

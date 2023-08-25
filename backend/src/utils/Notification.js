@@ -11,7 +11,7 @@ console.log(req.body);
       },
     });
     const info = await client.sendMail({
-      from: "sanjusabu066@gmail.com",
+      from:process.env.sendMail,
       to: req.body.email,
       subject: "New Journal Published",
       text: `The code for your password change is: ${otp}`,
